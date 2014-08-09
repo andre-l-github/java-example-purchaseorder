@@ -3,6 +3,7 @@
  */
 package com.lahs.examples.purchaseorder.controllers;
 
+import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -11,6 +12,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.Random;
 import java.util.UUID;
 
+import org.camunda.bpm.engine.RuntimeService;
+import org.camunda.bpm.engine.test.Deployment;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,6 +32,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.lahs.examples.purchaseorder.Application;
 import com.lahs.examples.purchaseorder.models.PurchaseOrder;
+import com.lahs.examples.purchaseorder.processes.PurchaseOrderProcess;
 import com.lahs.examples.purchaseorder.repository.PurchaseOrderMemoryRepository;
 import com.lahs.examples.purchaseorder.repository.PurchaseOrderRepository;
 
@@ -49,6 +53,9 @@ public class PurchaseOrdersControllerTest {
 	@Autowired
 	PurchaseOrderRepository repository;
 
+	@Autowired
+	RuntimeService runtimeService;
+	
 	@Autowired
 	WebApplicationContext webApplicationContext;
 
@@ -88,6 +95,7 @@ public class PurchaseOrdersControllerTest {
 	}
 
 	@Test
+	@Deployment
 	public void thatPurchaseOrderCanBeCreated() throws Exception {
 		Long valueInCents = new Random().nextLong();
 
@@ -99,6 +107,10 @@ public class PurchaseOrdersControllerTest {
 		this.mockMvc.perform(query).andExpect(status().isCreated())
 				.andExpect(jsonPath("$.id").value(1))
 				.andExpect(jsonPath("$.valueInCents").value(valueInCents));
+	
+		// TODO: This is way too much here, but just to get started with camunda...
+		String businessKey = PurchaseOrderProcess.getBusinessKeyFromOrderId(1l);
+		assertEquals(1, runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(businessKey).count());
 	}
 
 	private String standardOrderJSON(Long valueInCents) {
