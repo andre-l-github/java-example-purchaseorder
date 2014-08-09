@@ -8,18 +8,19 @@ package com.lahs.examples.purchaseorder.models;
  * 
  */
 public class PurchaseOrder {
-	private final Integer id;
-	private final Long valueInCents;
+	private Integer id;
+	private Long valueInCents;
 
 	/**
 	 * @param id
 	 * @param valueInCents
 	 */
 	public PurchaseOrder(Integer id, Long valueInCents) {
-		super();
 		this.id = id;
 		this.valueInCents = valueInCents;
 	}
+	
+	public PurchaseOrder() {}
 
 	public Integer getId() {
 		return id;

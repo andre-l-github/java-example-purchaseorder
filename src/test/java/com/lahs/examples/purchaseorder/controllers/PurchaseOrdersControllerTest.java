@@ -4,6 +4,8 @@
 package com.lahs.examples.purchaseorder.controllers;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
@@ -17,6 +19,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 /**
@@ -48,5 +51,20 @@ public class PurchaseOrdersControllerTest {
 		this.mockMvc.perform(query).andExpect(status().isOk())
 				.andExpect(jsonPath("$.id").value(1))
 				.andExpect(jsonPath("$.valueInCents").value(10000));
+	}
+
+	@Test
+	public void thatPurchaseOrderCanBeCreated() throws Exception {
+		RequestBuilder query = post("/purchase_orders")
+				.content(standardOrderJSON())
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON);
+
+		this.mockMvc.perform(query).andDo(print())
+				.andExpect(status().isCreated());
+	}
+
+	private String standardOrderJSON() {
+		return "{ \"id\": null, \"valueInCents\": 20000 }";
 	}
 }
